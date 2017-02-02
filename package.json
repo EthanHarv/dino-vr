@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "clean": "rm -rf dist",
+    "js": "mkdir -p dist; rollup -c",
+    "build": "npm run clean; npm run lint; npm run js",
+    "lint": "eslint app/**/*.js",
     "watch": "mkdir -p dist; rollup -cw"
   },
   "devDependencies": {
