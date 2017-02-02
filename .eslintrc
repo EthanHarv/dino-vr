@@ -1,0 +1,20 @@
+{
+  "extends": "google",
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-undef": 2,
+    "no-warning-comments": 0,
+    "require-jsdoc": 0,
+    "max-len": 0,
+    "default-case": 0,
+    "guard-for-in": 0,
+    "prefer-const": "error",
+    "no-const-assign": "error"
+  }
+}
