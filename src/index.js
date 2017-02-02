@@ -11,3 +11,47 @@
   limitations under the License.
 */
 'use strict';
+
+import {AmbientLight} from 'three/src/lights/AmbientLight';
+import {BoxBufferGeometry} from 'three/src/geometries/BoxGeometry';
+import {DirectionalLight} from 'three/src/lights/DirectionalLight';
+import {Mesh} from 'three/src/objects/Mesh';
+import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
+import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera';
+import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer';
+import {Scene} from 'three/src/scenes/Scene';
+
+const NEAR = 0.1;
+const FAR = 1000;
+
+const renderer = new WebGLRenderer();
+document.body.appendChild(renderer.domElement);
+
+const scene = new Scene();
+
+const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
+camera.position.z = 4;
+
+const cubeMaterial = new MeshPhongMaterial({color: 0xffff00});
+const cubeGeometry = new BoxBufferGeometry(1, 1, 1);
+const cube = new Mesh(cubeGeometry, cubeMaterial);
+scene.add(cube);
+
+const ambientLight = new AmbientLight('#ffffff', 0.1);
+scene.add(ambientLight);
+
+const directionalLight = new DirectionalLight();
+directionalLight.position.set(1, 1, 1);
+scene.add(directionalLight);
+
+function render() {
+  requestAnimationFrame(render);
+
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.render(scene, camera);
+}
+
+render();

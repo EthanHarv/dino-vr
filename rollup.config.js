@@ -14,10 +14,32 @@
 import babel from 'rollup-plugin-babel';
 import nodeResolve from 'rollup-plugin-node-resolve';
 
+function glsl() {
+  return {
+    transform(code, id) {
+      if (!/\.glsl$/.test(id)) {
+        return;
+      }
+
+      const transformedCode = 'export default ' + JSON.stringify(
+        code
+          .replace( /[ \t]*\/\/.*\n/g, '' )
+          .replace( /[ \t]*\/\*[\s\S]*?\*\//g, '' )
+          .replace( /\n{2,}/g, '\n' )
+      ) + ';';
+      return {
+        code: transformedCode,
+        map: {mappings: ''},
+      };
+    },
+  };
+}
+
 export default {
   entry: 'src/index.js',
   format: 'cjs',
   plugins: [
+    glsl(),
     nodeResolve({jsnext: true}),
     babel(),
   ],
