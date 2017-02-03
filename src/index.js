@@ -12,52 +12,39 @@
 */
 'use strict';
 
-import {AmbientLight} from 'three/src/lights/AmbientLight';
-import {DirectionalLight} from 'three/src/lights/DirectionalLight';
-import {BufferGeometryLoader} from 'three/src/loaders/BufferGeometryLoader';
-import {Mesh} from 'three/src/objects/Mesh';
-import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
+import 'three/src/polyfills.js';
+
 import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera';
 import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer';
-import {Scene} from 'three/src/scenes/Scene';
+import loader from './loader';
+import world from './world';
 
 const NEAR = 0.1;
 const FAR = 1000;
 
-const loader = new BufferGeometryLoader();
-
 const renderer = new WebGLRenderer();
 document.body.appendChild(renderer.domElement);
-
-const scene = new Scene();
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
 camera.position.z = 20;
 
-const ambientLight = new AmbientLight('#ffffff', 0.1);
-scene.add(ambientLight);
+let lastFrameStart = 0;
 
-const directionalLight = new DirectionalLight();
-directionalLight.position.set(1, 1, 1);
-scene.add(directionalLight);
-
-let dino;
-
-function render() {
+function render(frameStart) {
   requestAnimationFrame(render);
+  const elapsed = (frameStart - lastFrameStart) / 1000;
+  lastFrameStart = frameStart;
 
-  dino.rotation.y += 0.01;
+  world.update(elapsed);
 
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+  renderer.setPixelRatio(devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera);
+  renderer.render(world.scene, camera);
 }
 
-loader.load('assets/dino.json', (geometry) => {
-  const material = new MeshPhongMaterial({color: 0xffff00});
-  dino = new Mesh(geometry, material);
-  scene.add(dino);
-
-  render();
+loader.load().then((assets) => {
+  world.start(assets);
+  render(0);
 });
