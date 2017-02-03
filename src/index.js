@@ -48,6 +48,8 @@ function render() {
 
   dino.rotation.y += 0.01;
 
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
 }
