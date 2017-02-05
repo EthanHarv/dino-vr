@@ -12,6 +12,7 @@
 */
 
 import babel from 'rollup-plugin-babel';
+import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
 
 function glsl() {
@@ -40,7 +41,8 @@ export default {
   format: 'cjs',
   plugins: [
     glsl(),
-    nodeResolve({jsnext: true}),
+    nodeResolve({jsnext: true, main: true}),
+    commonjs(),
     babel(),
   ],
   dest: 'dist/app.min.js',

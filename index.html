@@ -20,13 +20,25 @@
         padding: 0;
         width: 100%;
         height: 100vh;
+        overflow: hidden;
+        position: relative;
       }
       canvas {
-        height: 100%;
+        position: absolute;
+        top: 0;
+      }
+      #ui {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
       }
     </style>
   </head>
   <body>
+    <div id="ui">
+      <div id="button"></div>
+    </div>
     <script src="dist/app.min.js"></script>
   </body>
 </html>

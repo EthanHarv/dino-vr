@@ -17,6 +17,7 @@ import 'three/src/polyfills.js';
 import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera';
 import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer';
 import loader from './loader';
+import * as vrui from 'webvr-ui';
 import world from './world';
 
 const NEAR = 0.1;
@@ -29,6 +30,9 @@ const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight,
 camera.position.z = 20;
 
 let lastFrameStart = 0;
+
+const enterVR = new vrui.EnterVRButton(renderer.domElement, {});
+document.getElementById('button').appendChild(enterVR.domElement);
 
 function render(frameStart) {
   requestAnimationFrame(render);
