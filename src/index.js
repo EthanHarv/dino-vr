@@ -10,10 +10,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-'use strict';
+/* global VRFrameData */
 
 import 'three/src/polyfills.js';
 
+import {Matrix4} from 'three/src/math/Matrix4';
 import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera';
 import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer';
 import loader from './loader';
@@ -27,25 +28,82 @@ const renderer = new WebGLRenderer();
 document.body.appendChild(renderer.domElement);
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
-camera.position.z = 20;
+world.viewpoint.add(camera);
+
+let frameData;
+// Check that VR is supported
+if ('VRFrameData' in window) {
+  frameData = new VRFrameData();
+}
+const vrCamera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
+world.viewpoint.add(vrCamera);
 
 let lastFrameStart = 0;
 
-const enterVR = new vrui.EnterVRButton(renderer.domElement, {});
+let display = window;
+
+const enterVR = new vrui.EnterVRButton(renderer.domElement, {})
+  .on('enter', () => {
+    enterVR.getVRDisplay().then((vrdisplay) => {
+      display = vrdisplay;
+      display.depthFar = FAR;
+      display.depthNear = NEAR;
+      renderer.setPixelRatio(1);
+      renderer.autoClear = false;
+      const eyeParamsL = display.getEyeParameters('left');
+      renderer.setSize(eyeParamsL.renderWidth * 2, eyeParamsL.renderHeight, false);
+    });
+  })
+  .on('exit', () => {
+    display = window;
+    renderer.autoclear = true;
+  });
 document.getElementById('button').appendChild(enterVR.domElement);
 
+const viewMatrix = new Matrix4();
+
+function renderEye(view, projection, width, height, side) {
+  renderer.setViewport(width * side, 0, width, height);
+
+  viewMatrix.fromArray(view);
+
+  vrCamera.matrixAutoUpdate = false;
+  vrCamera.projectionMatrix.fromArray(projection);
+  vrCamera.matrix.getInverse(viewMatrix);
+  vrCamera.updateMatrixWorld(true);
+
+  renderer.render(world.scene, vrCamera);
+}
+
 function render(frameStart) {
-  requestAnimationFrame(render);
+  display.requestAnimationFrame(render);
   const elapsed = (frameStart - lastFrameStart) / 1000;
   lastFrameStart = frameStart;
 
   world.update(elapsed);
 
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setPixelRatio(devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(world.scene, camera);
+  if (enterVR.isPresenting()) {
+    renderer.clear();
+
+    display.getFrameData(frameData);
+
+    const eyeParamsL = display.getEyeParameters('left');
+    const width = eyeParamsL.renderWidth;
+    const height = eyeParamsL.renderHeight;
+
+    renderEye(frameData.leftViewMatrix, frameData.leftProjectionMatrix, width, height, 0);
+    renderer.clearDepth();
+    renderEye(frameData.rightViewMatrix, frameData.rightProjectionMatrix, width, height, 1);
+
+    display.submitFrame();
+  } else {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    camera.updateMatrix();
+    renderer.setPixelRatio(devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(world.scene, camera);
+  }
 }
 
 loader.load().then((assets) => {

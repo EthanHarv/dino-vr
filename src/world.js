@@ -15,6 +15,7 @@ import {AmbientLight} from 'three/src/lights/AmbientLight';
 import {DirectionalLight} from 'three/src/lights/DirectionalLight';
 import {Mesh} from 'three/src/objects/Mesh';
 import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
+import {Object3D} from 'three/src/core/Object3D';
 import {Scene} from 'three/src/scenes/Scene';
 
 const scene = new Scene();
@@ -25,10 +26,18 @@ const directionalLight = new DirectionalLight();
 directionalLight.position.set(1, 1, 1);
 scene.add(directionalLight);
 
+// The 'viewpoint' has the position and orientation of the viewer. The cameras are relative to
+// this. This allows us to move the base viewpoint around independently of what the VR camera is
+// doing.
+const viewpoint = new Object3D();
+viewpoint.position.z = 20;
+scene.add(viewpoint);
+
 let dino;
 
 export default {
   scene,
+  viewpoint,
   start: (assets) => {
     const material = new MeshPhongMaterial({color: 0xffff00});
     dino = new Mesh(assets['dino.json'], material);
