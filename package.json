@@ -18,6 +18,7 @@
     "rollup-plugin-commonjs": "^7.0.0",
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-watch": "^3.2.2",
+    "three": "^0.84.0",
     "webvr-ui": "^0.9.3"
   }
 }
