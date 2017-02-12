@@ -10,10 +10,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+/* eslint-env node */
 
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
+import uglify from 'rollup-plugin-uglify';
 
 function glsl() {
   return {
@@ -36,14 +38,20 @@ function glsl() {
   };
 }
 
+const plugins = [
+  glsl(),
+  nodeResolve({jsnext: true, main: true}),
+  commonjs(),
+  babel(),
+];
+
+if (process.env.PROD === 'true') {
+  plugins.push(uglify());
+}
+
 export default {
   entry: 'src/index.js',
   format: 'cjs',
-  plugins: [
-    glsl(),
-    nodeResolve({jsnext: true, main: true}),
-    commonjs(),
-    babel(),
-  ],
+  plugins: plugins,
   dest: 'dist/app.min.js',
 };
