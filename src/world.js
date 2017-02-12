@@ -18,6 +18,11 @@ import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
 import {Object3D} from 'three/src/core/Object3D';
 import {Scene} from 'three/src/scenes/Scene';
 
+import input from './input';
+
+const GRAVITY = -30;
+const JUMP_VELOCITY = 10;
+
 const scene = new Scene();
 const ambientLight = new AmbientLight('#ffffff', 0.1);
 scene.add(ambientLight);
@@ -26,14 +31,17 @@ const directionalLight = new DirectionalLight();
 directionalLight.position.set(1, 1, 1);
 scene.add(directionalLight);
 
-// The 'viewpoint' has the position and orientation of the viewer. The cameras are relative to
-// this. This allows us to move the base viewpoint around independently of what the VR camera is
-// doing.
+// The 'viewpoint' has the position and orientation of the viewer. The cameras
+// are relative to this. This allows us to move the base viewpoint around
+// independently of what the VR camera is doing.
 const viewpoint = new Object3D();
 viewpoint.position.z = 20;
 scene.add(viewpoint);
 
 let dino;
+let dinoYVelocity = JUMP_VELOCITY;
+let onFloor = false;
+
 
 export default {
   scene,
@@ -44,6 +52,18 @@ export default {
     scene.add(dino);
   },
   update: (elapsed) => {
-    dino.rotation.y += 0.5 * elapsed;
+    if (input.jump && onFloor) {
+      dinoYVelocity = JUMP_VELOCITY;
+      onFloor = false;
+    } else {
+      dinoYVelocity += GRAVITY * elapsed;
+    }
+    dino.position.y += dinoYVelocity * elapsed;
+    if (dino.position.y < 0) {
+      dino.position.y = 0;
+      dinoYVelocity = 0;
+      onFloor = true;
+    }
+    input.clear();
   },
 };
