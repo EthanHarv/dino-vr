@@ -30,6 +30,25 @@ document.body.appendChild(renderer.domElement);
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
 world.viewpoint.add(camera);
 
+let paused = false;
+let lastFrameStart = 0;
+
+document.addEventListener('visibilitychange', (e) => {
+  if (document.hidden) {
+    paused = true;
+    console.log('Paused', performance.now());
+  }
+}, false);
+window.addEventListener('blur', () => {
+  paused = true;
+  console.log('Paused', performance.now());
+});
+window.addEventListener('focus', () => {
+  paused = false;
+  lastFrameStart = performance.now();
+  console.log('Unpaused', performance.now());
+});
+
 let frameData;
 // Check that VR is supported
 if ('VRFrameData' in window) {
@@ -38,7 +57,6 @@ if ('VRFrameData' in window) {
 const vrCamera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
 world.viewpoint.add(vrCamera);
 
-let lastFrameStart = 0;
 
 let display = window;
 
@@ -80,7 +98,9 @@ function render(frameStart) {
   const elapsed = (frameStart - lastFrameStart) / 1000;
   lastFrameStart = frameStart;
 
-  world.update(elapsed);
+  if (!paused) {
+    world.update(elapsed);
+  }
 
   if (enterVR.isPresenting()) {
     renderer.clear();
