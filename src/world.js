@@ -81,7 +81,6 @@ export default {
       obstacleCountdown -= elapsed;
       if (obstacleCountdown < 0) {
         obstacleCountdown += 2;
-        console.log(distance);
         createObstacle();
       }
       const xDelta = dinoXVelocity * elapsed;
