@@ -13,10 +13,11 @@
 
 import {AmbientLight} from 'three/src/lights/AmbientLight';
 import {DirectionalLight} from 'three/src/lights/DirectionalLight';
+import EntityList from './EntityList';
 import {Mesh} from 'three/src/objects/Mesh';
 import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
 import {Object3D} from 'three/src/core/Object3D';
-import ObstacleList from './ObstacleList';
+import Obstacle from './Obstacle';
 import {Scene} from 'three/src/scenes/Scene';
 import Scoreboard from './Scoreboard';
 
@@ -29,7 +30,7 @@ const ACCELERATION = 0.05;
 let obstacleCountdown = 2;
 let started = false;
 let distance = 0;
-const obstacles = new ObstacleList();
+const obstacles = new EntityList(Obstacle);
 
 const scene = new Scene();
 const ambientLight = new AmbientLight('#ffffff', 0.1);

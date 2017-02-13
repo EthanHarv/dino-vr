@@ -11,8 +11,6 @@
   limitations under the License.
 */
 
-import Obstacle from './Obstacle';
-
 class ListEntry {
   constructor(item) {
     this.next = null;
@@ -20,8 +18,9 @@ class ListEntry {
   }
 }
 
-export default class ObstacleList {
-  constructor() {
+export default class EntityList {
+  constructor(ctor) {
+    this.Ctor = ctor;
     this.free = null;
     this.active = null;
   }
@@ -35,7 +34,7 @@ export default class ObstacleList {
       result = this.free.item;
       this.free = entry.next;
     } else {
-      result = new Obstacle();
+      result = new this.Ctor();
       entry = new ListEntry(result);
     }
 
@@ -45,15 +44,15 @@ export default class ObstacleList {
     return result;
   }
 
-  recycle(obstacle) {
+  recycle(entity) {
     let previous = null;
     let current = this.active;
-    while (current !== null && current.item !== obstacle) {
+    while (current !== null && current.item !== entity) {
       previous = current;
       current = current.next;
     }
     if (!current) {
-      return; // obstacle not actually in the active list
+      return; // entity not actually in the active list
     }
     // Remove the item from the active list
     if (previous) {
