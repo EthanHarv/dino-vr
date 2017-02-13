@@ -18,6 +18,7 @@ import {Mesh} from 'three/src/objects/Mesh';
 import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
 import {Object3D} from 'three/src/core/Object3D';
 import {Scene} from 'three/src/scenes/Scene';
+import Scoreboard from './scoreboard';
 
 import input from './input';
 
@@ -27,6 +28,7 @@ const ACCELERATION = 0.05;
 
 let obstacleCountdown = 2;
 let started = false;
+let distance = 0;
 const obstacles = [];
 
 const scene = new Scene();
@@ -36,6 +38,12 @@ scene.add(ambientLight);
 const directionalLight = new DirectionalLight();
 directionalLight.position.set(-0.5, 0.5, 1);
 scene.add(directionalLight);
+
+const scoreboard = new Scoreboard();
+scoreboard.position.x = 5;
+scoreboard.position.y = 5.5;
+scoreboard.position.z = 15;
+scene.add(scoreboard);
 
 // The 'viewpoint' has the position and orientation of the viewer. The cameras
 // are relative to this. This allows us to move the base viewpoint around
@@ -84,6 +92,8 @@ export default {
         createObstacle();
       }
       const xDelta = dinoXVelocity * elapsed;
+      distance += xDelta;
+      scoreboard.setScore(distance);
       for (const obstacle of obstacles) {
         obstacle.position.x -= xDelta;
         if (obstacle.position.x < -20) {
