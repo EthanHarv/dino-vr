@@ -12,13 +12,13 @@
 */
 
 import {AmbientLight} from 'three/src/lights/AmbientLight';
-import {BoxBufferGeometry} from 'three/src/geometries/BoxGeometry';
 import {DirectionalLight} from 'three/src/lights/DirectionalLight';
 import {Mesh} from 'three/src/objects/Mesh';
 import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
 import {Object3D} from 'three/src/core/Object3D';
+import ObstacleList from './ObstacleList';
 import {Scene} from 'three/src/scenes/Scene';
-import Scoreboard from './scoreboard';
+import Scoreboard from './Scoreboard';
 
 import input from './input';
 
@@ -29,7 +29,7 @@ const ACCELERATION = 0.05;
 let obstacleCountdown = 2;
 let started = false;
 let distance = 0;
-const obstacles = [];
+const obstacles = new ObstacleList();
 
 const scene = new Scene();
 const ambientLight = new AmbientLight('#ffffff', 0.1);
@@ -58,19 +58,16 @@ let dinoYVelocity = JUMP_VELOCITY;
 let dinoXVelocity = 10;
 let onFloor = false;
 
-const obstacleMaterial = new MeshPhongMaterial({color: 0xff0000});
-
 function createObstacle() {
-  const box = new BoxBufferGeometry(1, 1, 1);
-  const obstacle = new Mesh(box, obstacleMaterial);
+  const obstacle = obstacles.create();
   obstacle.position.x = 50;
   obstacle.position.y = 0.5;
   obstacle.position.z = 0;
-  obstacles.push(obstacle);
   scene.add(obstacle);
 }
 
 function removeObstacle(obstacle) {
+  obstacles.recycle(obstacle);
   scene.remove(obstacle);
 }
 
