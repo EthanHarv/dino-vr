@@ -74,6 +74,13 @@ function removeObstacle(obstacle) {
   scene.remove(obstacle);
 }
 
+function random(min, max) {
+  let val = Math.random();
+  val *= (max - min); // Scale
+  val += min; // Offset
+  return val;
+}
+
 export default {
   scene,
   viewpoint,
@@ -88,7 +95,7 @@ export default {
     if (started) {
       obstacleCountdown -= elapsed;
       if (obstacleCountdown < 0) {
-        obstacleCountdown += 2;
+        obstacleCountdown += random(1, 2.5);
         createObstacle();
       }
       const xDelta = dinoXVelocity * elapsed;
