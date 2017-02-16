@@ -23,8 +23,9 @@ import world from './world';
 
 const NEAR = 0.1;
 const FAR = 1000;
+const DRAW_RATIO = 0.5;
 
-const renderer = new WebGLRenderer();
+const renderer = new WebGLRenderer({antialias: true});
 document.body.appendChild(renderer.domElement);
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
@@ -75,7 +76,7 @@ function resizeVR() {
   renderer.setPixelRatio(1);
   renderer.autoClear = false;
   const eyeParamsL = display.getEyeParameters('left');
-  renderer.setSize(eyeParamsL.renderWidth * 2, eyeParamsL.renderHeight, false);
+  renderer.setSize(eyeParamsL.renderWidth * 2 * DRAW_RATIO, eyeParamsL.renderHeight * DRAW_RATIO, false);
 }
 
 const enterVR = new vrui.EnterVRButton(renderer.domElement, {})
@@ -122,8 +123,8 @@ function render(frameStart) {
     display.getFrameData(frameData);
 
     const eyeParamsL = display.getEyeParameters('left');
-    const width = eyeParamsL.renderWidth;
-    const height = eyeParamsL.renderHeight;
+    const width = eyeParamsL.renderWidth * DRAW_RATIO;
+    const height = eyeParamsL.renderHeight * DRAW_RATIO;
 
     renderEye(frameData.leftViewMatrix, frameData.leftProjectionMatrix, width, height, 0);
     renderer.clearDepth();

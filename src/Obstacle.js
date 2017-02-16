@@ -16,10 +16,10 @@ import {Mesh} from 'three/src/objects/Mesh';
 import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
 
 const obstacleMaterial = new MeshPhongMaterial({color: 0xff0000});
+const box = new BoxBufferGeometry(1, 1, 1);
 
 export default class Obstacle extends Mesh {
   constructor() {
-    const box = new BoxBufferGeometry(1, 1, 1);
     super(box, obstacleMaterial);
   }
 }
