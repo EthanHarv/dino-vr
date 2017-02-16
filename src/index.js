@@ -58,38 +58,43 @@ const vrCamera = new PerspectiveCamera(75, window.innerWidth / window.innerHeigh
 world.viewpoint.add(vrCamera);
 
 function resizeNormal() {
+  if (enterVR.isPresenting()) {
+    return;
+  }
+
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   camera.updateMatrix();
-  renderer.setPixelRatio(devicePixelRatio);
+  // renderer.setPixelRatio(devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 window.addEventListener('resize', resizeNormal);
 
-let display = window;
+let vrdisplay;
 
 function resizeVR() {
-  display.depthFar = FAR;
-  display.depthNear = NEAR;
+  vrdisplay.depthFar = FAR;
+  vrdisplay.depthNear = NEAR;
   renderer.setPixelRatio(1);
   renderer.autoClear = false;
-  const eyeParamsL = display.getEyeParameters('left');
+  const eyeParamsL = vrdisplay.getEyeParameters('left');
   renderer.setSize(eyeParamsL.renderWidth * 2 * DRAW_RATIO, eyeParamsL.renderHeight * DRAW_RATIO, false);
 }
 
 const enterVR = new vrui.EnterVRButton(renderer.domElement, {})
   .on('enter', () => {
-    enterVR.getVRDisplay().then((vrdisplay) => {
-      display = vrdisplay;
-      resizeVR();
-    });
+    resizeVR();
   })
   .on('exit', () => {
-    display = window;
     renderer.autoclear = true;
     resizeNormal();
   });
+
+enterVR.getVRDisplay().then((d) => {
+  vrdisplay = d;
+});
+
 document.getElementById('button').appendChild(enterVR.domElement);
 
 const viewMatrix = new Matrix4();
@@ -108,27 +113,38 @@ function renderEye(view, projection, width, height, side) {
 }
 
 function render(frameStart) {
-  display.requestAnimationFrame(render);
   const elapsed = (frameStart - lastFrameStart) / 1000;
   lastFrameStart = frameStart;
 
   world.update(elapsed);
 
-  if (enterVR.isPresenting()) {
-    renderer.clear();
+  let width = renderer.domElement.width;
+  let height = renderer.domElement.height;
 
-    display.getFrameData(frameData);
+  if (vrdisplay) {
+    vrdisplay.getFrameData(frameData);
 
-    const eyeParamsL = display.getEyeParameters('left');
-    const width = eyeParamsL.renderWidth * DRAW_RATIO;
-    const height = eyeParamsL.renderHeight * DRAW_RATIO;
+    if (enterVR.isPresenting()) {
+      vrdisplay.requestAnimationFrame(render);
+      renderer.clear();
 
-    renderEye(frameData.leftViewMatrix, frameData.leftProjectionMatrix, width, height, 0);
-    renderer.clearDepth();
-    renderEye(frameData.rightViewMatrix, frameData.rightProjectionMatrix, width, height, 1);
+      const eyeParamsL = vrdisplay.getEyeParameters('left');
+      width = eyeParamsL.renderWidth * DRAW_RATIO;
+      height = eyeParamsL.renderHeight * DRAW_RATIO;
 
-    display.submitFrame();
+      renderEye(frameData.leftViewMatrix, frameData.leftProjectionMatrix, width, height, 0);
+      renderer.clearDepth();
+      renderEye(frameData.rightViewMatrix, frameData.rightProjectionMatrix, width, height, 1);
+    } else {
+      requestAnimationFrame(render);
+
+      renderEye(frameData.leftViewMatrix, camera.projectionMatrix.toArray(), width, height, 0);
+    }
+
+    vrdisplay.submitFrame();
   } else {
+    requestAnimationFrame(render);
+    renderer.setViewport(0, 0, renderer.domElement.width, renderer.domElement.height);
     renderer.render(world.scene, camera);
   }
 }
