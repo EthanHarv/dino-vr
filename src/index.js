@@ -57,24 +57,38 @@ if ('VRFrameData' in window) {
 const vrCamera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
 world.viewpoint.add(vrCamera);
 
+function resizeNormal() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  camera.updateMatrix();
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+window.addEventListener('resize', resizeNormal);
 
 let display = window;
+
+function resizeVR() {
+  display.depthFar = FAR;
+  display.depthNear = NEAR;
+  renderer.setPixelRatio(1);
+  renderer.autoClear = false;
+  const eyeParamsL = display.getEyeParameters('left');
+  renderer.setSize(eyeParamsL.renderWidth * 2, eyeParamsL.renderHeight, false);
+}
 
 const enterVR = new vrui.EnterVRButton(renderer.domElement, {})
   .on('enter', () => {
     enterVR.getVRDisplay().then((vrdisplay) => {
       display = vrdisplay;
-      display.depthFar = FAR;
-      display.depthNear = NEAR;
-      renderer.setPixelRatio(1);
-      renderer.autoClear = false;
-      const eyeParamsL = display.getEyeParameters('left');
-      renderer.setSize(eyeParamsL.renderWidth * 2, eyeParamsL.renderHeight, false);
+      resizeVR();
     });
   })
   .on('exit', () => {
     display = window;
     renderer.autoclear = true;
+    resizeNormal();
   });
 document.getElementById('button').appendChild(enterVR.domElement);
 
@@ -117,16 +131,12 @@ function render(frameStart) {
 
     display.submitFrame();
   } else {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    camera.updateMatrix();
-    renderer.setPixelRatio(devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(world.scene, camera);
   }
 }
 
 loader.load().then((assets) => {
   world.start(assets);
+  resizeNormal();
   render(0);
 });
