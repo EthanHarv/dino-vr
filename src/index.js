@@ -31,21 +31,20 @@ document.body.appendChild(renderer.domElement);
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
 world.viewpoint.add(camera);
 
-let paused = false;
 let lastFrameStart = 0;
 
 document.addEventListener('visibilitychange', (e) => {
   if (document.hidden) {
-    paused = true;
+    world.pause();
     console.log('Paused', performance.now());
   }
 }, false);
 window.addEventListener('blur', () => {
-  paused = true;
+  world.pause();
   console.log('Paused', performance.now());
 });
 window.addEventListener('focus', () => {
-  paused = false;
+  world.unpause();
   lastFrameStart = performance.now();
   console.log('Unpaused', performance.now());
 });
@@ -113,9 +112,7 @@ function render(frameStart) {
   const elapsed = (frameStart - lastFrameStart) / 1000;
   lastFrameStart = frameStart;
 
-  if (!paused) {
-    world.update(elapsed);
-  }
+  world.update(elapsed);
 
   if (enterVR.isPresenting()) {
     renderer.clear();

@@ -84,6 +84,8 @@ function random(min, max) {
   return val;
 }
 
+let paused = false;
+
 export default {
   scene,
   viewpoint,
@@ -103,7 +105,20 @@ export default {
     room.position.y = 10;
     scene.add(room);
   },
+  pause: () => {
+    paused = true;
+  },
+  unpause: () => {
+    paused = false;
+  },
   update: (elapsed) => {
+    if (paused) {
+      if (input.jump) {
+        paused = false;
+      } else {
+        return;
+      }
+    }
     if (started) {
       obstacleCountdown -= elapsed;
       if (obstacleCountdown < 0) {
