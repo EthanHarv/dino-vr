@@ -12,25 +12,30 @@
 */
 
 import {BufferGeometryLoader} from 'three/src/loaders/BufferGeometryLoader';
+import {TextureLoader} from 'three/src/loaders/TextureLoader';
 
-const loader = new BufferGeometryLoader();
+const geoLoader = new BufferGeometryLoader();
+const textureLoader = new TextureLoader();
 
-const objects = [
-  'dino.json',
-];
+const objects = {
+  'dino.json': geoLoader,
+  'wallpaper.jpg': textureLoader,
+};
 
 const assets = {};
 
-function loadObject(url) {
+function loadObject(url, loader) {
   return new Promise((resolve, reject) => loader.load(`assets/${url}`, resolve, undefined, reject));
 }
 
 export default {
   load: () => {
-    return Promise.all(objects.map((url) => {
-      return loadObject(url).then((geometry) => {
-        assets[url] = geometry;
-      });
-    })).then(() => assets);
+    const promises = [];
+    for (const url in objects) {
+      promises.push(loadObject(url, objects[url]).then((asset) => {
+        assets[url] = asset;
+      }));
+    }
+    return Promise.all(promises).then(() => assets);
   },
 };

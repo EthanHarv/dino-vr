@@ -12,14 +12,17 @@
 */
 
 import {AmbientLight} from 'three/src/lights/AmbientLight';
+import {BoxBufferGeometry} from 'three/src/geometries/BoxGeometry';
 import {DirectionalLight} from 'three/src/lights/DirectionalLight';
 import EntityList from './EntityList';
 import {Mesh} from 'three/src/objects/Mesh';
+import {MeshLambertMaterial} from 'three/src/materials/MeshLambertMaterial';
 import {MeshPhongMaterial} from 'three/src/materials/MeshPhongMaterial';
 import {Object3D} from 'three/src/core/Object3D';
 import Obstacle from './Obstacle';
 import {Scene} from 'three/src/scenes/Scene';
 import Scoreboard from './Scoreboard';
+import * as THREE from 'three/src/constants';
 
 import input from './input';
 
@@ -33,7 +36,7 @@ let distance = 0;
 const obstacles = new EntityList(Obstacle);
 
 const scene = new Scene();
-const ambientLight = new AmbientLight('#ffffff', 0.1);
+const ambientLight = new AmbientLight('#ffffff', 0.3);
 scene.add(ambientLight);
 
 const directionalLight = new DirectionalLight();
@@ -53,6 +56,8 @@ const viewpoint = new Object3D();
 viewpoint.position.z = 20;
 viewpoint.position.y = 5;
 scene.add(viewpoint);
+
+let room;
 
 let dino;
 let dinoYVelocity = JUMP_VELOCITY;
@@ -88,6 +93,15 @@ export default {
     dino.rotation.y = Math.PI / 2;
     dino.position.x = -5;
     scene.add(dino);
+
+    const wallMaterial = new MeshLambertMaterial({
+      map: assets['wallpaper.jpg'],
+      side: THREE.BackSide,
+    });
+    const roomGeometry = new BoxBufferGeometry(50, 20, 50, 5, 5, 5);
+    room = new Mesh(roomGeometry, wallMaterial);
+    room.position.y = 10;
+    scene.add(room);
   },
   update: (elapsed) => {
     if (started) {
