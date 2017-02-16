@@ -24,11 +24,8 @@ import {Scene} from 'three/src/scenes/Scene';
 import Scoreboard from './Scoreboard';
 import * as THREE from 'three/src/constants';
 
+import config from './config';
 import input from './input';
-
-const GRAVITY = -30;
-const JUMP_VELOCITY = 10;
-const ACCELERATION = 0.05;
 
 let obstacleCountdown = 2;
 let started = false;
@@ -60,7 +57,7 @@ scene.add(viewpoint);
 let room;
 
 let dino;
-let dinoYVelocity = JUMP_VELOCITY;
+let dinoYVelocity = config.JUMP_VELOCITY;
 let dinoXVelocity = 10;
 let onFloor = false;
 
@@ -136,13 +133,13 @@ export default {
       }
     }
     if (input.jump && onFloor) {
-      dinoYVelocity = JUMP_VELOCITY;
+      dinoYVelocity = config.JUMP_VELOCITY;
       onFloor = false;
       started = true;
     } else {
-      dinoYVelocity += GRAVITY * elapsed;
+      dinoYVelocity += config.GRAVITY * elapsed;
     }
-    dinoXVelocity += ACCELERATION * elapsed;
+    dinoXVelocity += config.ACCELERATION * elapsed;
     dino.position.y += dinoYVelocity * elapsed;
     if (dino.position.y < 0) {
       dino.position.y = 0;

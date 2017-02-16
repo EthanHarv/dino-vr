@@ -16,26 +16,25 @@ import {MeshBasicMaterial} from 'three/src/materials/MeshBasicMaterial';
 import {PlaneBufferGeometry} from 'three/src/geometries/PlaneGeometry';
 import {Texture} from 'three/src/textures/Texture';
 
-const WIDTH = 8;
-const HEIGHT = 1;
+import config from './config';
 
 export default class Scoreboard extends Mesh {
   constructor() {
     const canvas = document.createElement('canvas');
     const texture = new Texture(canvas);
-    const geometry = new PlaneBufferGeometry(WIDTH, HEIGHT, 1, 1);
+    const geometry = new PlaneBufferGeometry(config.SCORE_WIDTH, config.SCORE_HEIGHT, 1, 1);
     const material = new MeshBasicMaterial({map: texture, transparent: true});
 
     super(geometry, material);
-    canvas.width = WIDTH * 64;
-    canvas.height = HEIGHT * 64;
+    canvas.width = config.SCORE_WIDTH * config.SCORE_FONT_SIZE;
+    canvas.height = config.SCORE_HEIGHT * config.SCORE_FONT_SIZE;
     this.score = 0;
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
-    this.context.fillStyle = 'red';
+    this.context.fillStyle = config.SCORE_COLOR;
     this.context.textAlign = 'center';
     this.context.textBaseline = 'middle';
-    this.context.font = `${this.canvas.height}px monospace`;
+    this.context.font = `${config.SCORE_FONT_SIZE}px ${config.SCORE_FONT_FAMILY}`;
     this.texture = texture;
     this.draw();
   }

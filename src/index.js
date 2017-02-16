@@ -11,24 +11,21 @@
   limitations under the License.
 */
 /* global VRFrameData */
-
 import 'three/src/polyfills.js';
 
 import {Matrix4} from 'three/src/math/Matrix4';
 import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera';
 import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer';
+
+import config from './config';
 import loader from './loader';
 import * as vrui from 'webvr-ui';
 import world from './world';
 
-const NEAR = 0.1;
-const FAR = 1000;
-const DRAW_RATIO = 0.5;
-
 const renderer = new WebGLRenderer({antialias: true});
 document.body.appendChild(renderer.domElement);
 
-const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
+const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, config.NEAR, config.FAR);
 world.viewpoint.add(camera);
 
 let lastFrameStart = 0;
@@ -54,7 +51,7 @@ let frameData;
 if ('VRFrameData' in window) {
   frameData = new VRFrameData();
 }
-const vrCamera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR, FAR);
+const vrCamera = camera.clone();
 world.viewpoint.add(vrCamera);
 
 function resizeNormal() {
@@ -74,12 +71,12 @@ window.addEventListener('resize', resizeNormal);
 let vrdisplay;
 
 function resizeVR() {
-  vrdisplay.depthFar = FAR;
-  vrdisplay.depthNear = NEAR;
+  vrdisplay.depthFar = config.FAR;
+  vrdisplay.depthNear = config.NEAR;
   renderer.setPixelRatio(1);
   renderer.autoClear = false;
   const eyeParamsL = vrdisplay.getEyeParameters('left');
-  renderer.setSize(eyeParamsL.renderWidth * 2 * DRAW_RATIO, eyeParamsL.renderHeight * DRAW_RATIO, false);
+  renderer.setSize(eyeParamsL.renderWidth * 2 * config.DRAW_RATIO, eyeParamsL.renderHeight * config.DRAW_RATIO, false);
 }
 
 const enterVR = new vrui.EnterVRButton(renderer.domElement, {})
@@ -129,8 +126,8 @@ function render(frameStart) {
       renderer.clear();
 
       const eyeParamsL = vrdisplay.getEyeParameters('left');
-      width = eyeParamsL.renderWidth * DRAW_RATIO;
-      height = eyeParamsL.renderHeight * DRAW_RATIO;
+      width = eyeParamsL.renderWidth * config.DRAW_RATIO;
+      height = eyeParamsL.renderHeight * config.DRAW_RATIO;
 
       renderEye(frameData.leftViewMatrix, frameData.leftProjectionMatrix, width, height, 0);
       renderer.clearDepth();
