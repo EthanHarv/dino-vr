@@ -147,7 +147,7 @@ function render(frameStart) {
 }
 
 loader.load().then((assets) => {
-  world.start(assets);
+  world.setup(assets);
   resizeNormal();
   render(0);
 });

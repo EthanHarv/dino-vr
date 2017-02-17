@@ -57,8 +57,8 @@ scene.add(viewpoint);
 let room;
 
 let dino;
-let dinoYVelocity = config.JUMP_VELOCITY;
-let dinoXVelocity = 10;
+let dinoYVelocity = config.INIITAL_JUMP_VELOCITY;
+let dinoXVelocity = config.SPEED;
 let onFloor = false;
 
 function createObstacle() {
@@ -86,21 +86,34 @@ let paused = false;
 export default {
   scene,
   viewpoint,
-  start: (assets) => {
+  setup: (assets) => {
     const material = new MeshPhongMaterial({color: 0xffff00});
     dino = new Mesh(assets['dino.json'], material);
     dino.rotation.y = Math.PI / 2;
     dino.position.x = -5;
     scene.add(dino);
 
+    const texture = assets['wallpaper.jpg'];
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(5, 5);
     const wallMaterial = new MeshLambertMaterial({
-      map: assets['wallpaper.jpg'],
+      map: texture,
       side: THREE.BackSide,
     });
-    const roomGeometry = new BoxBufferGeometry(50, 20, 50, 5, 5, 5);
+    const roomGeometry = new BoxBufferGeometry(90, 20, 50);
     room = new Mesh(roomGeometry, wallMaterial);
     room.position.y = 10;
+    room.position.x = 35;
     scene.add(room);
+  },
+  restart: () => {
+    obstacleCountdown = 2;
+    started = false;
+    distance = 0;
+    dinoYVelocity = config.INIITAL_JUMP_VELOCITY;
+    dinoXVelocity = config.SPEED;
+    onFloor = false;
   },
   pause: () => {
     paused = true;
@@ -123,7 +136,7 @@ export default {
         createObstacle();
       }
       const xDelta = dinoXVelocity * elapsed;
-      distance += xDelta;
+      distance += (xDelta * config.SCORE_RATE);
       scoreboard.setScore(distance);
       for (const obstacle of obstacles) {
         obstacle.position.x -= xDelta;
@@ -133,13 +146,15 @@ export default {
       }
     }
     if (input.jump && onFloor) {
-      dinoYVelocity = config.JUMP_VELOCITY;
+      dinoYVelocity = config.INIITAL_JUMP_VELOCITY;
       onFloor = false;
       started = true;
     } else {
       dinoYVelocity += config.GRAVITY * elapsed;
     }
-    dinoXVelocity += config.ACCELERATION * elapsed;
+    if (dinoXVelocity < config.MAX_SPEED) {
+      dinoXVelocity += config.ACCELERATION * elapsed;
+    }
     dino.position.y += dinoYVelocity * elapsed;
     if (dino.position.y < 0) {
       dino.position.y = 0;
