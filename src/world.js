@@ -41,17 +41,18 @@ directionalLight.position.set(-0.5, 0.5, 1);
 scene.add(directionalLight);
 
 const scoreboard = new Scoreboard();
-scoreboard.position.x = 5;
-scoreboard.position.y = 5.5;
-scoreboard.position.z = 15;
+scoreboard.position.x = 30;
+scoreboard.position.y = 3;
+scoreboard.position.z = 45;
 scene.add(scoreboard);
 
 // The 'viewpoint' has the position and orientation of the viewer. The cameras
 // are relative to this. This allows us to move the base viewpoint around
 // independently of what the VR camera is doing.
 const viewpoint = new Object3D();
-viewpoint.position.z = 20;
+viewpoint.position.x = 30;
 viewpoint.position.y = 5;
+viewpoint.position.z = 50;
 scene.add(viewpoint);
 
 let room;
@@ -63,7 +64,7 @@ let onFloor = false;
 
 function createObstacle() {
   const obstacle = obstacles.create();
-  obstacle.position.x = 50;
+  obstacle.position.x = 80;
   obstacle.position.y = 0.5;
   obstacle.position.z = 0;
   scene.add(obstacle);
@@ -101,10 +102,11 @@ export default {
       map: texture,
       side: THREE.BackSide,
     });
-    const roomGeometry = new BoxBufferGeometry(90, 20, 50);
+    const roomGeometry = new BoxBufferGeometry(90, 20, 70);
     room = new Mesh(roomGeometry, wallMaterial);
     room.position.y = 10;
     room.position.x = 35;
+    room.position.z = 20;
     scene.add(room);
   },
   restart: () => {
