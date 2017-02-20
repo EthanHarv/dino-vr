@@ -12,6 +12,7 @@
 */
 
 import {AmbientLight} from 'three/src/lights/AmbientLight';
+import {Box3} from 'three/src/math/Box3';
 import {BoxBufferGeometry} from 'three/src/geometries/BoxGeometry';
 import {DirectionalLight} from 'three/src/lights/DirectionalLight';
 import EntityList from './EntityList';
@@ -62,10 +63,21 @@ let dinoYVelocity = config.INIITAL_JUMP_VELOCITY;
 let dinoXVelocity = config.SPEED;
 let onFloor = false;
 
+function collision(obj1, obj2) {
+  const b1 = new Box3();
+  b1.setFromObject(obj1);
+  const b2 = new Box3();
+  b2.setFromObject(obj2);
+
+  return b1.intersectsBox(b2);
+}
+
 function createObstacle() {
   const obstacle = obstacles.create();
+  obstacle.scale.y = random(5, 10);
+  obstacle.scale.x = random(1, 5);
   obstacle.position.x = 80;
-  obstacle.position.y = 0.5;
+  obstacle.position.y = obstacle.scale.y / 2;
   obstacle.position.z = 0;
   scene.add(obstacle);
 }
@@ -84,7 +96,7 @@ function random(min, max) {
 
 let paused = false;
 
-export default {
+const world = {
   scene,
   viewpoint,
   setup: (assets) => {
@@ -117,6 +129,12 @@ export default {
     dinoXVelocity = config.SPEED;
     onFloor = false;
   },
+  end: () => {
+    for (const obstacle of obstacles) {
+      removeObstacle(obstacle);
+    }
+    world.restart();
+  },
   pause: () => {
     paused = true;
   },
@@ -145,6 +163,9 @@ export default {
         if (obstacle.position.x < -20) {
           removeObstacle(obstacle);
         }
+        if (collision(obstacle, dino)) {
+          world.end();
+        }
       }
     }
     if (input.jump && onFloor) {
@@ -166,3 +187,4 @@ export default {
     input.clear();
   },
 };
+export default world;
